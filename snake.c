@@ -8,10 +8,7 @@
 struct snake_part{
 	int x;
 	int y;
-	//int prevX;
-	//int prevY;
 	struct snake_part *next;
-	//struct snake_part *prev;
 };
 struct food{
 	int x;
@@ -26,14 +23,9 @@ struct snake_part *add_part(struct snake_part *last, int x, int y)
 	struct snake_part *tmp;
 	tmp = last == NULL ? last : last->next;
 	tmp = malloc(sizeof(struct snake_part));
-	
 	tmp->x = x;
 	tmp->y = y;
-	//tmp->prevX = last == NULL ? x : last->prevX;
-	//tmp->prevY = last == NULL ? y : last->prevY;
-
 	tmp->next = last;
-	//tmp->prev = ;
 	return tmp;
 }
 void put_snake(struct snake_part *last)
@@ -100,10 +92,8 @@ enum directions get_direction(enum directions dir)
 }
 struct food *try_to_spawn_food(int rows, int cols, struct food *apple)
 {
-	/*random place to spawn on ground*/
-	
 	//int rndY = 1 + (int)(rows * rand()/(RAND_MAX+1.0));
-	//int rndX = 1 + (int)(cols * rand()/(RAND_MAX+1.0));
+	//int rndX = 1 + (int)(cols * rand()/(RAND_MAX+1.0)); just dont know why it doesn't work
 	if(!apple->located){
 		apple->y = rand() % rows;
 		apple->x = rand() % cols;
@@ -128,17 +118,6 @@ struct food *permit_food_spawn(struct food *apple)
 	return apple;
 }
 
-struct snake_part *tail_spawner_debug(struct snake_part *last,
-		enum directions dir)
-{
-	timeout(0);
-	int ch = getch();
-	if(ch == 'a'){
-		/*only right direction*/	
-		last = add_part(last, last->x - 1, last->y);
-	}
-	return last;
-}
 int main()
 {        
 	srand(time(NULL));
@@ -156,26 +135,21 @@ int main()
 	struct timespec tim;
 	tim.tv_sec = 0;
 	//tim.tv_nsec = 500000000L;
+	//0.5 seconds
 	tim.tv_nsec = 80000000L;
-	/*0.5 seconds*/
+	//0.08 seconds
 
 	struct snake_part *head = add_part(NULL, col/2, row/2);
 	struct snake_part *tail = head;
 	struct snake_part *tmp;
 	struct food *apple = malloc(sizeof(struct food));
 	apple->located = 0;
-
 	enum directions current_direction = right;
-	
-	//int apple_located = 0;
-
 	tail = add_part(tail, tail->x - 1, tail->y);
-	//tail = add_part(tail, tail->next->y, tail->next->x-2);
-	//tail = add_part(tail, tail->next->y, tail->next->x-3);
+	
 	put_snake(tail);
 	refresh();
 	while(true){
-		//apple_located = spawn_apple(row, col, apple_located);
 		apple = try_to_spawn_food(row, col, apple);
 		tmp = tail;
 		tail = try_to_eat(head, tail, apple);
@@ -186,8 +160,6 @@ int main()
 		current_direction = get_direction(current_direction);
 		move_snake(head, tail, current_direction);
 		put_snake(tail);
-		
-		//tail = tail_spawner_debug(tail, current_direction);
 		
 		curs_set(0);
 		refresh();
