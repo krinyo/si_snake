@@ -2,3 +2,4 @@
 2.Don't spawn food on the snake parts
 3.Add colors
 4.Separate into modules
+5.Create makefile
