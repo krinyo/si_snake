@@ -3,8 +3,8 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <time.h>
-#define SNAKE_TEXTURE 'O'
-#define FOOD_TEXTURE 'X'
+//#define SNAKE_TEXTURE 'O'
+//#define FOOD_TEXTURE 'X'
 /*main element of the list is the snake tail*/
 enum directions{
 	right, bot, left, top
@@ -52,7 +52,6 @@ void hide_snake(struct snake_part *last)
 void move_snake(struct snake_part *first, struct snake_part *last,
 		enum directions dir, int cols, int rows)
 {
-        /*DO the handler for collision here*/
         while(last->next != NULL){
                 last->x = last->next->x;
                 last->y = last->next->y;
@@ -127,7 +126,7 @@ int main()
         cbreak();
         noecho();
         keypad(stdscr, 1);
-	start_color();//COLOR
+	start_color();//ADDING COLOR
 	init_pair(1, COLOR_GREEN, COLOR_GREEN);//SNAKE
 	init_pair(2, COLOR_BLACK, COLOR_BLACK);//BACKGROUND
 	init_pair(3, COLOR_RED, COLOR_RED);//APPLE
