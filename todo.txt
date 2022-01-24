@@ -1,5 +1,5 @@
-1.Handle the collisions(with the edges and tail)
+1.Handle the collisions(with the tail)
 2.Don't spawn food on the snake parts
-3.Add colors
++3.Add colors
 4.Separate into modules
 5.Create makefile
