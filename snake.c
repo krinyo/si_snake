@@ -12,9 +12,7 @@ enum directions{
 struct snake_part{
 	int x;
 	int y;
-	char texture;
-	struct snake_part *next;
-	
+	struct snake_part *next;	
 };
 struct food{
 	int x;
@@ -59,16 +57,16 @@ void move_snake(struct snake_part *first, struct snake_part *last,
         }
         switch(dir){
                 case right:
-                        first->x = first->x == cols ? 0 : first->x + 1;
+                        first->x = first->x == cols - 1 ? 0 : first->x + 1;
                         break;
                 case bot:
-                        first->y = first->y == rows ? 0 : first->y + 1;
+                        first->y = first->y == rows - 1 ? 0 : first->y + 1;
                         break;
                 case left:
-                        first->x = (first->x - 1) == -1 ? cols : first->x - 1;
+                        first->x = (first->x - 1) == 0 ? cols - 1 : first->x - 1;
                         break;
                 case top:
-                        first->y = (first->y - 1) == -1 ? rows : first->y - 1;
+                        first->y = (first->y - 1) == 0 ? rows - 1 : first->y - 1;
                         break;
         }
 }
