@@ -4,5 +4,6 @@ Dependencies: ncurses.
 Just for learning c language and a little bit git.
 Compiling: gcc -lncurses snake.c -o snake
 
-![preview](https://user-images.githubusercontent.com/57134381/150684309-f4253283-d32c-443a-8a63-2a0ea85c5de7.gif)
+
+![Peek 2022-02-03 21-11](https://user-images.githubusercontent.com/57134381/152381856-d099202b-4c1a-4664-ac49-91192b533ebf.gif)
 
