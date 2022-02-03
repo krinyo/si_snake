@@ -55,7 +55,7 @@ void hide_snake(struct snake_part *last)
 {
         while(last != NULL){
                 move(last->y, last->x);
-		attrset(COLOR_PAIR(BLACK_SKIN));
+		attrset(COLOR_PAIR(BLUE_SKIN));
                 addch(' ');
                 last = last->next;
         }
@@ -166,7 +166,7 @@ int main()
 	init_pair(8, COLOR_BLUE, COLOR_BLUE);//??
 
 	//init_pair(4, COLOR_BLACK, COLOR_WHITE);
-	wbkgd(stdscr, COLOR_PAIR(4));
+	wbkgd(stdscr, COLOR_PAIR(BLUE_SKIN));
         /*terminal and lib setup*/
 
         struct timespec tim;
