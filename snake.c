@@ -11,7 +11,12 @@
 #define CYAN_SKIN 6
 #define WHITE_SKIN 7
 #define BLUE_SKIN 8
+
+#define START_PARTS_COUNT 4
+#define BACKGROUND_SKIN WHITE_SKIN
+#define APPLE_SKIN RED_SKIN
 #define ACCELERATION_VALUE 30000L
+#define START_SPEED 80000000L
 //#define SNAKE_TEXTURE 'O'
 //#define FOOD_TEXTURE 'X'
 /*main element of the list is the snake tail*/
@@ -29,7 +34,7 @@ struct food{
 	int y;
 	int located;
 };
-struct snake_part *add_snake_part(struct snake_part *last, int x, int y)
+struct snake_part *add_snake_part(struct snake_part *last, int x, int y, int *res)
 {
 	struct snake_part *tmp;
 	int skin;
@@ -40,6 +45,7 @@ struct snake_part *add_snake_part(struct snake_part *last, int x, int y)
         tmp->y = y;
         tmp->next = last;
 	tmp->skin_number = skin;
+	*res = *res + 1;
         return tmp;
 }
 void put_snake(struct snake_part *last)
@@ -55,7 +61,7 @@ void hide_snake(struct snake_part *last)
 {
         while(last != NULL){
                 move(last->y, last->x);
-		attrset(COLOR_PAIR(BLUE_SKIN));
+		attrset(COLOR_PAIR(BACKGROUND_SKIN));
                 addch(' ');
                 last = last->next;
         }
@@ -113,7 +119,7 @@ int try_to_spawn_food(int rows, int cols, struct food *apple,
                 apple->y = (rand() % (rows - 1)) + 1;
                 apple->x = (rand() % (cols - 1)) + 1;
                 move(apple->y, apple->x);
-		attrset(COLOR_PAIR(RED_SKIN));
+		attrset(COLOR_PAIR(APPLE_SKIN));
                 addch(' ');
                 apple->located = 1;
 		return 1;
@@ -137,16 +143,71 @@ void snake_acceleration(struct timespec *tim, long number)
 }
 
 struct snake_part *try_to_eat(struct snake_part *first, struct snake_part *last,
-		struct food *apple)
+		struct food *apple, int *res)
 {
         if(first->x == apple->x && first->y == apple->y){
-                last = add_snake_part(last, last->x - 1, last->y);
+                last = add_snake_part(last, last->x - 1, last->y, res);
 		apple->located = 0;
 		
 		change_snake_skin(last);
 		return last;
         }
         return last;
+}
+int examine_losing(struct snake_part *first, struct snake_part *last)
+{
+	while(last->next != NULL){
+		if(first->x == last->x && first->y == last->y){
+			return 1;
+		}
+		last = last->next;
+	}
+	return 0;
+}
+void show_end_message(int row, int col, char result[])
+{
+	clear();
+	move(row/2, col/2);
+	attrset(COLOR_PAIR(9));
+	addstr("LOSER!");
+	move(row/2+1, col/2);
+	addstr("YOUR RESULT IS ONLY:");
+	move(row/2+1, col/2+21);
+	addstr(result);
+	refresh();
+	sleep(5);
+}
+struct snake_part *restart_game(struct snake_part *first,
+		struct snake_part *last, int row, int col, int *result,
+		struct food *apple, enum directions *dir, long *tv_nsec)
+{
+	//clear snake parts, change first
+	int i;
+	struct snake_part *tmp;
+	/*for(i = 0; i < *result - 1; i ++){
+		tmp = last->next;
+		free(last);
+		last = tmp;
+	}*/
+	while(last->next != NULL){
+		tmp = last->next;
+		free(last);
+		last = tmp;
+	}
+	*result = 1;
+	first->x = col/2;
+	first->y = row/2;
+	for(i = 0; i < START_PARTS_COUNT - 1; i ++){
+		last = add_snake_part(last, last->x-1, last->y, result);
+		change_snake_skin(last);
+	}
+	*dir = right;
+	apple->located = 0;
+	*tv_nsec = START_SPEED;
+	clear();
+	refresh();
+	return last;
+
 }
 int main()
 {
@@ -165,8 +226,10 @@ int main()
 	init_pair(7, COLOR_WHITE, COLOR_WHITE);//??
 	init_pair(8, COLOR_BLUE, COLOR_BLUE);//??
 
+	init_pair(9, COLOR_RED, COLOR_WHITE);
+
 	//init_pair(4, COLOR_BLACK, COLOR_WHITE);
-	wbkgd(stdscr, COLOR_PAIR(BLUE_SKIN));
+	wbkgd(stdscr, COLOR_PAIR(BACKGROUND_SKIN));
         /*terminal and lib setup*/
 
         struct timespec tim;
@@ -180,25 +243,28 @@ int main()
         getmaxyx(stdscr, row, col);
         /*getting width and height of screen*/	
 
-	struct snake_part *head = add_snake_part(NULL, col/2, row/2);
+	int result = 0;
+	struct snake_part *head = add_snake_part(NULL, col/2, row/2, &result);
 	struct snake_part *tail = head;
 	tail->skin_number = 1;
-
+	
 	struct food *apple = malloc(sizeof(struct food));
 	apple->located = 0;
 	enum directions curr_dir = right;
 
-	//char debug_info[256];
+	char result_info[256];
 	int i;
-	for(i = 0; i < 3; i ++){
-		tail = add_snake_part(tail, tail->x-1, tail->y);
+	for(i = 0; i < START_PARTS_COUNT - 1; i ++){
+		tail = add_snake_part(tail, tail->x-1, tail->y, &result);
 		change_snake_skin(tail);
 	}
 	while(true){
 		//sprintf(debug_info,"%ld", tim.tv_nsec);
-		//move(0, 0);
-		//attrset(COLOR_PAIR(4));
-		//addstr(debug_info);
+		//need to make function to write on top
+		sprintf(result_info, "%i", result);
+		move(0, 0);
+		attrset(COLOR_PAIR(9));
+		addstr(result_info);
 
 		hide_snake(tail);
 		curr_dir = get_direction(curr_dir);
@@ -206,11 +272,14 @@ int main()
 		if(try_to_spawn_food(row, col, apple, tail)){
 			apple->located = 1;
 		}
-		tail = try_to_eat(head, tail, apple);
+		tail = try_to_eat(head, tail, apple, &result);
+		if(examine_losing(head, tail)){
+			show_end_message(row, col, result_info);
+			tail = restart_game(head, tail, row, col, &result, apple, &curr_dir, &tim.tv_nsec);
+		}
 		put_snake(tail);
 		
 		snake_acceleration(&tim, ACCELERATION_VALUE);
-
 		curs_set(0);
 		refresh();
 		nanosleep(&tim, &tim);
