@@ -1,4 +1,4 @@
-1.Handle the collisions(with the tail)
++1.Handle the collisions(with the tail)
 2.Don't spawn food on the snake parts
 +3.Add colors
 4.Separate into modules
