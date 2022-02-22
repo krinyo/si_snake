@@ -3,6 +3,8 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <time.h>
+#include <math.h>
+
 #define GREEN_SKIN 1
 #define MAGENTA_SKIN 2
 #define YELLOW_SKIN 3
@@ -21,7 +23,7 @@
 //#define FOOD_TEXTURE 'X'
 /*main element of the list is the snake tail*/
 enum directions{
-	right, bot, left, top
+	right = 1, bot, left, top
 };
 struct snake_part{
 	int x;
@@ -93,23 +95,40 @@ enum directions get_direction(enum directions dir)
 {
         timeout(0);
         int ch = getch();
+	enum directions result;
         switch(ch){
                 case KEY_RIGHT:
-                        dir = right;
+                        //dir = right;
+			result = right;
                         break;
                 case KEY_DOWN:
-                        dir = bot;
+                        //dir = bot;
+			result = bot;
                         break;
                 case KEY_LEFT:
-                        dir = left;
-                        break;
+                        //dir = left;
+                        result = left;
+			break;
                 case KEY_UP:
-                        dir = top;
-                        break;
+                        //dir = top;
+                        result = top;
+			break;
                 default:
-                        dir = dir;
+                        result = dir;
                         break;
         }
+	/*Shitty section*/
+	int fbs = fabs(result - dir);
+	if(result > dir && (fbs == 1 || fbs == 3)){
+		return result;
+	}
+
+	if(dir > result){
+		fbs = fabs(dir - result);
+		if(fbs == 1 || fbs == 3){
+			return result;
+		}
+	}
         return dir;
 }
 int try_to_spawn_food(int rows, int cols, struct food *apple,
